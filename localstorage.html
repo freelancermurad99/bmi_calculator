@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>User Input Form</title>
+</head>
+<body>
+  <h2>User Input Form</h2>
+
+  <form id="userForm">
+    <label for="name">Name:</label>
+    <input type="text" id="name" name="name" required>
+
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required>
+
+    <label for="phone">Phone:</label>
+    <input type="tel" id="phone" name="phone" required>
+
+    <button type="submit">Submit</button>
+  </form>
+
+  <ul id="userDataList">
+    <!-- User data will be displayed here -->
+  </ul>
+
+  <script>
+    const form = document.getElementById('userForm');
+    const userDataList = document.getElementById('userDataList');
+    let userData = []; // ডেটা স্থায়ীভাবে সংরক্ষণ করতে জন্য অ্যারে ব্যবহার করা হয়েছে
+
+    form.addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const phone = document.getElementById('phone').value;
+
+      if (editModeIndex === -1) {
+        // নতুন ডেটা সংযুক্ত করবে
+        saveUserData(name, email, phone);
+      } else {
+        // ডেটা সংশোধন করবে
+        updateUserData(editModeIndex, name, email, phone);
+      }
+
+      form.reset();
+      editModeIndex = -1;
+      clearEditState();
+    });
+
+    function saveUserData(name, email, phone) {
+      userData.push({ name, email, phone });
+      updateLocalStorage();
+      displayUserData();
+    }
+
+    function updateUserData(index, name, email, phone) {
+      userData[index] = { name, email, phone };
+      updateLocalStorage();
+      displayUserData();
+    }
+
+    function deleteUserData(index) {
+      userData.splice(index, 1);
+      updateLocalStorage();
+      displayUserData();
+    }
+
+    function updateLocalStorage() {
+      localStorage.setItem('userData', JSON.stringify(userData));
+    }
+
+    function displayUserData() {
+      userDataList.innerHTML = '';
+
+      userData.forEach(function(user, index) {
+        const listItem = document.createElement('li');
+        listItem.textContent = `Name: ${user.name}, Email: ${user.email}, Phone: ${user.phone}`;
+
+        const editButton = document.createElement('button');
+        editButton.textContent = 'Edit';
+        editButton.addEventListener('click', function() {
+          editModeIndex = index;
+          setEditState(user);
+        });
+
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.addEventListener('click', function() {
+          deleteUserData(index);
+        });
+
+        listItem.appendChild(editButton);
+        listItem.appendChild(deleteButton);
+
+        userDataList.appendChild(listItem);
+      });
+    }
+
+    // সম্পাদনার স্টেট রিসেট করার ফাংশন
+    function clearEditState() {
+      const submitButton = document.querySelector('button[type="submit"]');
+      submitButton.textContent = 'Submit';
+    }
+
+    // সম্পাদনার স্টেট সেট করার ফাংশন
+    function setEditState(user) {
+      const submitButton = document.querySelector('button[type="submit"]');
+      submitButton.textContent = 'Update';
+
+      document.getElementById('name').value = user.name;
+      document.getElementById('email').value = user.email;
+      document.getElementById('phone').value = user.phone;
+    }
+
+    window.addEventListener('load', function() {
+      const existingData = localStorage.getItem('userData');
+
+      if (existingData) {
+        userData = JSON.parse(existingData);
+        displayUserData();
+      }
+    });
+  </script>
+</body>
+</html>
