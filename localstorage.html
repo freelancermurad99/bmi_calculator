@@ -24,6 +24,30 @@
   </ul>
 
   <script>
+    
+    if ('caches' in window) {
+      const cacheName = 'offline-cache';
+      const urlsToCache = [
+        '/',
+        '/styles.css',
+        '/script.js',
+        '/image.jpg'
+      ];
+
+      // পেজ লোড হলে ক্যাশে রেসোর্স সংরক্ষণ করুন
+      window.addEventListener('load', function() {
+        caches.open(cacheName)
+          .then(function(cache) {
+            return cache.addAll(urlsToCache);
+          });
+      });
+
+      // নেটওয়ার্ক রিকুয়েস্টের জন্য সার্ভিস ওয়ার্কার নিয়োগ করুন
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/service-worker.js');
+      }
+    }
+  
     const form = document.getElementById('userForm');
     const userDataList = document.getElementById('userDataList');
     let userData = []; // ডেটা স্থায়ীভাবে সংরক্ষণ করতে জন্য অ্যারে ব্যবহার করা হয়েছে
